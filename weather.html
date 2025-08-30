@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modern Weather App</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
+      background: linear-gradient(160deg, #1e3c72, #2a5298, #00c6ff, #0072ff);
+      background-size: cover;
+      background-position: center;
+      transition: background-image 1s ease-in-out;
+color: balck;
+  text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
+
+    }
+
+    .weather-app {
+      width: 350px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 25px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+color: balck;
+  text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
+
+         }
+
+    .weather-app h2 {
+      font-size: 2.5rem;
+      margin: 5px 0;
+color: balck;
+  text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
+    }
+
+    .weather-app .desc {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      text-transform: capitalize;
+color: balck;
+  text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
+
+    }
+
+    .weather-icon {
+      width: 100px;
+      margin: 10px auto;
+    }
+
+    .temp {
+      font-size: 3rem;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .details {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      font-size: 0.9rem;
+	color: balck;
+  text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
+
+    }
+
+    .detail-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 10px;
+      width: 90px;
+      box-shadow: inset 2px 2px 6px rgba(0,0,0,0.3),
+                  inset -2px -2px 6px rgba(255,255,255,0.05);
+    }
+
+    /* Forecast Section */
+    .forecast {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .forecast-day {
+      flex: 1;
+      background: rgba(255,255,255,0.08);
+      border-radius: 15px;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+
+    .forecast-day img {
+      width: 40px;
+      margin: 5px 0;
+    }
+
+    input {
+      width: 70%;
+      padding: 8px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 10px;
+      background: #00aaff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover { background: #008ecc; }
+  </style>
+</head>
+<body>
+  <div class="weather-app">
+    <input type="text" id="cityInput" placeholder="Enter city">
+    <button onclick="getWeatherByCity()">Search</button>
+
+    <h2 id="city">Loading...</h2>
+    <p class="desc" id="condition">--</p>
+    <img src="https://openweathermap.org/img/wn/01d@2x.png" class="weather-icon" id="icon" alt="Weather">
+    <p class="temp" id="temperature">--°C</p>
+
+    <div class="details">
+      <div class="detail-card">
+        <p id="humidity">Humidity: --%</p>
+      </div>
+      <div class="detail-card">
+        <p id="wind">Wind: -- km/h</p>
+      </div>
+      <div class="detail-card">
+        <p id="rain">Pressure: -- hPa</p>
+      </div>
+    </div>
+
+    <div class="forecast" id="forecast">
+      <!-- 3-day forecast will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    const apiKey = "ed10ddd31e40e2215a745971b1e554eb"; 
+
+    
+    const weatherBackgrounds = {
+      rain: "https://static.vecteezy.com/system/resources/thumbnails/042/195/741/small_2x/ai-generated-rainy-sky-background-free-photo.jpg",
+      clouds: "https://static.vecteezy.com/system/resources/thumbnails/042/195/725/small_2x/ai-generated-rainy-sky-background-free-photo.jpg",
+      clear: "https://s7d2.scene7.com/is/image/TWCNews/sunshine_jpg-5goodjpg",
+      storm: "https://wallpaperaccess.com/full/6536893.jpg"
+    };
+
+    function updateBackground(condition) {
+      condition = condition.toLowerCase();
+      if (condition.includes("rain")) {
+        document.body.style.backgroundImage = `url('${weatherBackgrounds.rain}')`;
+      } else if (condition.includes("cloud")) {
+        document.body.style.backgroundImage = `url('${weatherBackgrounds.clouds}')`;
+      } else if (condition.includes("clear") || condition.includes("sun")) {
+        document.body.style.backgroundImage = `url('${weatherBackgrounds.clear}')`;
+      } else if (condition.includes("storm") || condition.includes("thunder")) {
+        document.body.style.backgroundImage = `url('${weatherBackgrounds.storm}')`;
+      } else {
+     
+        document.body.style.background = "linear-gradient(160deg, #1e3c72, #2a5298, #00c6ff, #0072ff)";
+      }
+    }
+
+    function getWeatherByCity() {
+      let city = document.getElementById("cityInput").value;
+      if (!city) return;
+
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+        .then(res => res.json())
+        .then(data => {
+          displayWeather(data);
+          updateBackground(data.weather[0].main);
+        });
+
+            fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`)
+        .then(res => res.json())
+        .then(data => displayForecast(data));
+    }
+
+    function displayWeather(data) {
+      document.getElementById("city").textContent = data.name + ", " + data.sys.country;
+      document.getElementById("condition").textContent = data.weather[0].description;
+      document.getElementById("temperature").textContent = Math.round(data.main.temp) + "°C";
+      document.getElementById("humidity").textContent = "Humidity: " + data.main.humidity + "%";
+      document.getElementById("wind").textContent = "Wind: " + data.wind.speed + " km/h";
+      document.getElementById("rain").textContent = "Pressure: " + data.main.pressure + " hPa";
+      document.getElementById("icon").src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    }
+
+    function displayForecast(data) {
+      let forecastContainer = document.getElementById("forecast");
+      forecastContainer.innerHTML = "";
+      let daily = {};
+
+      data.list.forEach(item => {
+        let date = new Date(item.dt_txt).toLocaleDateString("en-US", {weekday:"short"});
+        if (!daily[date]) daily[date] = item;
+      });
+
+      let days = Object.keys(daily).slice(0,3);
+      days.forEach(day => {
+        let f = daily[day];
+        let div = document.createElement("div");
+        div.classList.add("forecast-day");
+        div.innerHTML = `
+          <p>${day}</p>
+          <img src="https://openweathermap.org/img/wn/${f.weather[0].icon}.png" alt="">
+          <p>${Math.round(f.main.temp)}°C</p>
+        `;
+        forecastContainer.appendChild(div);
+      });
+    }
+
+       if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        let lat = pos.coords.latitude, lon = pos.coords.longitude;
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
+          .then(res => res.json())
+          .then(data => {
+            displayWeather(data);
+            updateBackground(data.weather[0].main);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
